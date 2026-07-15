@@ -1,5 +1,8 @@
+import { randomUUID } from "node:crypto";
 import { parseCsv } from "@/lib/csv";
 import { generateSequencesBatch, type LeadInput } from "@/lib/sequence";
+import { getCurrentUser } from "@/lib/auth";
+import { insertSequenceRun, listSequenceRuns } from "@/lib/db";
 
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
@@ -30,6 +33,9 @@ function leadsFromCsv(csvText: string): LeadInput[] {
 }
 
 export async function POST(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) return Response.json({ error: "Log in to use the sequence generator." }, { status: 401 });
+
   const contentType = request.headers.get("content-type") || "";
   let leads: LeadInput[] = [];
   let apiKey: string | undefined;
@@ -72,6 +78,13 @@ export async function POST(request: Request) {
 
   try {
     const results = await generateSequencesBatch(leads, key, DEFAULT_MODEL, 3);
+    insertSequenceRun({
+      id: randomUUID(),
+      userId: user.id,
+      leadCount: results.length,
+      okCount: results.filter((r) => r.ok).length,
+      resultsJson: JSON.stringify(results),
+    });
     return Response.json({ results });
   } catch (err) {
     return Response.json(
@@ -79,4 +92,10 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  const user = await getCurrentUser();
+  if (!user) return Response.json({ error: "Log in to view history." }, { status: 401 });
+  return Response.json({ runs: listSequenceRuns(user.id) });
 }

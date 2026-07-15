@@ -1,8 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 type Letter = "A" | "B" | "C" | "D" | "F";
+
+interface HistoryRow {
+  id: string;
+  filename: string | null;
+  overall_grade: Letter;
+  total_leads: number;
+  ready_to_send: number;
+  created_at: string;
+}
 
 interface DimensionResult {
   key: string;
@@ -39,6 +48,18 @@ export default function ListGraderPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<GradeReport | null>(null);
+  const [history, setHistory] = useState<HistoryRow[]>([]);
+
+  const loadHistory = useCallback(() => {
+    fetch("/api/grade")
+      .then((r) => r.json())
+      .then((d) => setHistory(d.runs || []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,6 +80,7 @@ export default function ListGraderPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Grading failed.");
       setReport(data);
+      loadHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Grading failed.");
     } finally {
@@ -197,6 +219,25 @@ export default function ListGraderPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div className="mt-12 pt-8 border-t border-line">
+          <span className="eyebrow block mb-3">Recent runs</span>
+          <div className="flex flex-col gap-1">
+            {history.map((h) => (
+              <div key={h.id} className="flex items-center gap-3 text-sm py-1.5 border-b border-line last:border-0">
+                <span className={`font-mono font-semibold w-5 ${GRADE_COLOR[h.overall_grade]}`}>{h.overall_grade}</span>
+                <span className="text-fg-dim flex-1 truncate">{h.filename || "untitled.csv"}</span>
+                <span className="text-fg-dim font-mono text-xs tabular">{h.total_leads} rows</span>
+                <span className={`font-mono text-xs ${h.ready_to_send ? "text-ok" : "text-crit"}`}>
+                  {h.ready_to_send ? "ready" : "blocked"}
+                </span>
+                <span className="text-fg-dim font-mono text-xs">{new Date(h.created_at).toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -3,8 +3,8 @@
 The outbound methodology in `.claude/skills/` (this repo's parent directory), rebuilt as
 software your team or clients run directly instead of booking as agency labor.
 
-This is an **MVP scaffold** — three real, working tools, not mockups. It is not yet a
-sellable multi-tenant SaaS. Read the "What's missing" section before pitching it as one.
+This is an **MVP with real auth and persistence**, not yet a billable multi-tenant SaaS.
+Read the "What's missing" section before pitching it as one.
 
 ## What's actually working
 
@@ -19,6 +19,23 @@ output, no placeholder data. The two deterministic tools have been exercised aga
 sample CSVs and drafts and produce correct pass/fail and grade results — see git history
 for the test cases used.
 
+**Auth and persistence are real**, not stubbed:
+- Email/password accounts — `lib/auth.ts`, sessions in an httpOnly cookie, passwords
+  hashed with `scrypt` (Node's built-in `node:crypto`, no extra dependency)
+- `/dashboard/*` is gated server-side in `app/dashboard/layout.tsx` — no session, no access
+- Every API route checks the session and returns 401 if there isn't one
+- Every run (grade, scan, sequence batch) is persisted per-user and shown as recent-run
+  history on its tool page — verified end to end, including that it survives a server
+  restart (see git history for the test transcript)
+
+The datastore is `lib/db.ts`, using Node's built-in `node:sqlite` — no ORM, no native
+compile step. **This is a development/demo datastore, not a production one**: the `.db`
+file lives on local disk, and serverless platforms (Vercel/Netlify functions) have
+ephemeral filesystems, so it will not persist in that kind of deployment. Every caller
+goes through the functions in `lib/db.ts`, not raw SQL, specifically so swapping in a
+hosted Postgres (Neon, Supabase) or libSQL/Turso for production is contained to that one
+file rather than a rewrite.
+
 ## Running it
 
 ```bash
@@ -27,20 +44,21 @@ cp .env.example .env.local   # only needed for the Sequence Generator
 npm run dev
 ```
 
-The Sequence Generator needs an Anthropic API key — either set `ANTHROPIC_API_KEY` in
+Sign up at `/signup` to get into the dashboard — there's no seeded account. The Sequence
+Generator additionally needs an Anthropic API key — either set `ANTHROPIC_API_KEY` in
 `.env.local` as a server default, or paste one into the tool's own key field per request
 (bring-your-own-key mode; the key is never persisted server-side).
 
 ## What's missing before this is a sellable SaaS
 
-This scaffold deliberately skips everything that isn't "does the core logic work":
+This scaffold deliberately skips everything beyond "does the core logic work, with real
+accounts and real persistence":
 
-- **Auth / multi-tenancy** — there is no login. Everyone who reaches the app sees the
-  same single workspace. A client-facing product needs accounts and per-client data
-  isolation before anyone else touches it.
-- **A database** — nothing persists. Grades, scans, and generated sequences live only
-  in the browser tab that requested them. Add a real store (leads, campaigns, run
-  history) before this is usable past a single session.
+- **Multi-tenancy / workspaces** — every user sees only their own runs (enforced via
+  `user_id` on every table), but there's no team/workspace concept yet — one login,
+  one owner, no seat sharing or role permissions.
+- **A production database** — see the datastore note above. Local SQLite works for
+  development; production on serverless hosting needs a hosted DB swapped in.
 - **Billing** — no Stripe, no usage metering, no plan tiers.
 - **Sending integration** — output still has to be manually exported and uploaded to
   Instantly (or wherever). No API integration exists yet.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toCsv } from "@/lib/csv";
 
 interface LeadInput {
@@ -24,6 +24,13 @@ type SequenceResult =
   | { lead: LeadInput; ok: true; sequence: SequenceOutput }
   | { lead: LeadInput; ok: false; error: string };
 
+interface HistoryRow {
+  id: string;
+  lead_count: number;
+  ok_count: number;
+  created_at: string;
+}
+
 export default function SequencesPage() {
   const [mode, setMode] = useState<"single" | "csv">("single");
   const [apiKey, setApiKey] = useState("");
@@ -32,6 +39,18 @@ export default function SequencesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SequenceResult[] | null>(null);
+  const [history, setHistory] = useState<HistoryRow[]>([]);
+
+  const loadHistory = useCallback(() => {
+    fetch("/api/sequences")
+      .then((r) => r.json())
+      .then((d) => setHistory(d.runs || []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +77,7 @@ export default function SequencesPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed.");
       setResults(data.results);
+      loadHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed.");
     } finally {
@@ -221,6 +241,22 @@ export default function SequencesPage() {
               </div>
             </details>
           ))}
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div className="mt-12 pt-8 border-t border-line max-w-2xl">
+          <span className="eyebrow block mb-3">Recent runs</span>
+          <div className="flex flex-col gap-1">
+            {history.map((h) => (
+              <div key={h.id} className="flex items-center gap-3 text-sm py-1.5 border-b border-line last:border-0">
+                <span className="font-mono text-xs text-fg-dim flex-1">
+                  {h.ok_count}/{h.lead_count} generated
+                </span>
+                <span className="text-fg-dim font-mono text-xs">{new Date(h.created_at).toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

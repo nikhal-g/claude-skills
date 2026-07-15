@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Flag {
   severity: "HIGH" | "MEDIUM";
@@ -17,6 +17,13 @@ interface ScanResult {
   flags: Flag[];
 }
 
+interface HistoryRow {
+  id: string;
+  pass: number;
+  flag_count: number;
+  created_at: string;
+}
+
 const PLACEHOLDER = `Subject: Quick question about your onboarding flow
 
 Good news / bad news — which do you want first?
@@ -30,6 +37,18 @@ export default function DeliverabilityPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ScanResult | null>(null);
+  const [history, setHistory] = useState<HistoryRow[]>([]);
+
+  const loadHistory = useCallback(() => {
+    fetch("/api/deliverability")
+      .then((r) => r.json())
+      .then((d) => setHistory(d.runs || []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +69,7 @@ export default function DeliverabilityPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Scan failed.");
       setResult(data);
+      loadHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Scan failed.");
     } finally {
@@ -119,6 +139,23 @@ export default function DeliverabilityPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div className="mt-12 pt-8 border-t border-line max-w-xl">
+          <span className="eyebrow block mb-3">Recent runs</span>
+          <div className="flex flex-col gap-1">
+            {history.map((h) => (
+              <div key={h.id} className="flex items-center gap-3 text-sm py-1.5 border-b border-line last:border-0">
+                <span className={`font-mono font-semibold w-10 ${h.pass ? "text-ok" : "text-crit"}`}>
+                  {h.pass ? "PASS" : "FAIL"}
+                </span>
+                <span className="text-fg-dim font-mono text-xs flex-1">{h.flag_count} flags</span>
+                <span className="text-fg-dim font-mono text-xs">{new Date(h.created_at).toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

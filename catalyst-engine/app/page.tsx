@@ -25,14 +25,22 @@ export default function Home() {
   return (
     <div className="flex-1 flex flex-col">
       <header className="border-b border-line">
-        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
           <span className="font-mono text-sm tracking-tight">catalyst&nbsp;engine</span>
-          <Link
-            href="/dashboard"
-            className="font-mono text-xs uppercase tracking-wider px-3.5 py-2 rounded border border-line-strong hover:border-accent hover:text-accent transition-colors"
-          >
-            Open dashboard →
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="font-mono text-xs uppercase tracking-wider px-3.5 py-2 rounded hover:text-accent transition-colors"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/signup"
+              className="font-mono text-xs uppercase tracking-wider px-3.5 py-2 rounded border border-line-strong hover:border-accent hover:text-accent transition-colors"
+            >
+              Sign up →
+            </Link>
+          </div>
         </div>
       </header>
 
