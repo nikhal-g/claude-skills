@@ -7,6 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 export interface LeadInput {
   name: string;
   company: string;
+  email?: string;
   title?: string;
   painSignal?: string;
   website?: string;

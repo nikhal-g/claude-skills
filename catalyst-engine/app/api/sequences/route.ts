@@ -17,6 +17,7 @@ function leadsFromCsv(csvText: string): LeadInput[] {
 
   const nameCol = findColumn(rows[0], ["name", "full_name", "first_name"]);
   const companyCol = findColumn(rows[0], ["company", "company_name", "organization"]);
+  const emailCol = findColumn(rows[0], ["email", "email address", "e-mail"]);
   const titleCol = findColumn(rows[0], ["title", "job_title", "role"]);
   const painCol = findColumn(rows[0], ["pain_signal", "pain", "signal", "notes"]);
   const websiteCol = findColumn(rows[0], ["website", "url", "domain"]);
@@ -26,6 +27,7 @@ function leadsFromCsv(csvText: string): LeadInput[] {
     .map((r) => ({
       name: nameCol ? r[nameCol] : "there",
       company: companyCol ? r[companyCol] : "your company",
+      email: emailCol ? r[emailCol] : undefined,
       title: titleCol ? r[titleCol] : undefined,
       painSignal: painCol ? r[painCol] : undefined,
       website: websiteCol ? r[websiteCol] : undefined,

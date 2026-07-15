@@ -62,12 +62,12 @@ export default async function DashboardHome() {
       </h1>
 
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
           {tools.map((t) => (
             <Link
               key={t.href}
               href={t.href}
-              className="rounded border border-line bg-bg-raised px-4 py-3 hover:border-accent-soft transition-colors"
+              className="surface surface-interactive px-4 py-3"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="font-serif text-2xl tabular">{stats[t.statKey]}</span>
@@ -82,8 +82,16 @@ export default async function DashboardHome() {
               <p className="text-xs text-fg-dim mt-1 truncate">{t.title}</p>
             </Link>
           ))}
+          <div className="surface px-4 py-3">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="font-serif text-2xl tabular">{stats.instantlyPushes}</span>
+              <span className="font-mono text-[0.6rem] uppercase tracking-wider text-fg-dim">sending</span>
+            </div>
+            <p className="text-xs text-fg-dim mt-1 truncate">Instantly pushes</p>
+          </div>
         </div>
       )}
+      <p className="text-xs text-fg-dim mb-10">Push leads to Instantly from the Sequence Generator once you&rsquo;ve generated copy.</p>
 
       {stats?.lastActivity && (
         <p className="font-mono text-xs text-fg-dim mb-10">
@@ -96,7 +104,7 @@ export default async function DashboardHome() {
           <Link
             key={t.href}
             href={t.href}
-            className="flex flex-col gap-2 rounded border border-line bg-bg-raised p-5 hover:border-accent-soft transition-colors"
+            className="flex flex-col gap-2 surface surface-interactive p-5"
           >
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-lg font-medium">{t.title}</h2>

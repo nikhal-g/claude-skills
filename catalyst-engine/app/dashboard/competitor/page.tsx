@@ -92,7 +92,7 @@ export default function CompetitorPage() {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="sk-ant-… (leave blank to use server default, if configured)"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised font-mono"
+            className="field-input text-sm font-mono"
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -101,7 +101,7 @@ export default function CompetitorPage() {
             value={competitorName}
             onChange={(e) => setCompetitorName(e.target.value)}
             placeholder="e.g. Instantly"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+            className="field-input text-sm"
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -110,7 +110,7 @@ export default function CompetitorPage() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://instantly.ai"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+            className="field-input text-sm"
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -119,13 +119,13 @@ export default function CompetitorPage() {
             value={pricingUrl}
             onChange={(e) => setPricingUrl(e.target.value)}
             placeholder="https://instantly.ai/pricing"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+            className="field-input text-sm"
           />
         </label>
         <button
           type="submit"
           disabled={loading}
-          className="font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
+          className="btn-focus font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
         >
           {loading ? "Fetching and profiling…" : "Build profile"}
         </button>
@@ -134,22 +134,22 @@ export default function CompetitorPage() {
 
       {result && (
         <div className="flex flex-col gap-4 max-w-2xl">
-          <div className="rounded border border-accent/40 bg-accent/10 p-4">
+          <div className="rounded-xl border border-accent/30 bg-accent/10 p-4">
             <span className="eyebrow block mb-1">One-line positioning</span>
             <p className="font-serif text-lg">{result.profile.onelinePositioning}</p>
           </div>
 
-          <div className="rounded border border-line bg-bg-raised p-4">
+          <div className="surface p-4">
             <span className="eyebrow block mb-2">What they do</span>
             <p className="text-sm">{result.profile.whatTheyDo}</p>
           </div>
 
-          <div className="rounded border border-line bg-bg-raised p-4">
+          <div className="surface p-4">
             <span className="eyebrow block mb-2">Pricing</span>
             <p className="text-sm text-fg-dim">{result.profile.pricingNotes}</p>
           </div>
 
-          <div className="rounded border border-line bg-bg-raised p-4">
+          <div className="surface p-4">
             <span className="eyebrow block mb-2">Stated differentiators</span>
             <ul className="text-sm space-y-1 list-disc list-inside text-fg-dim">
               {result.profile.statedDifferentiators.map((d, i) => (
@@ -159,7 +159,7 @@ export default function CompetitorPage() {
           </div>
 
           {result.profile.weaknesses.length > 0 && (
-            <div className="rounded border border-line bg-bg-raised p-4">
+            <div className="surface p-4">
               <span className="eyebrow block mb-2">Weaknesses (evidence-based only)</span>
               <ul className="text-sm space-y-1 list-disc list-inside text-fg-dim">
                 {result.profile.weaknesses.map((d, i) => (
@@ -169,7 +169,7 @@ export default function CompetitorPage() {
             </div>
           )}
 
-          <div className="rounded border border-ok/40 bg-ok/10 p-4">
+          <div className="rounded-xl border border-ok/30 bg-ok/10 p-4">
             <span className="eyebrow block mb-2" style={{ color: "var(--ok)" }}>Where you can differentiate</span>
             <ul className="text-sm space-y-1 list-disc list-inside text-fg-dim">
               {result.profile.differentiationOpportunities.map((d, i) => (

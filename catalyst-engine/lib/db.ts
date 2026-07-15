@@ -99,6 +99,16 @@ db.exec(`
     created_at TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS instantly_pushes (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    campaign_id TEXT NOT NULL,
+    lead_count INTEGER NOT NULL,
+    ok_count INTEGER NOT NULL,
+    results_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
   CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
   CREATE INDEX IF NOT EXISTS idx_grade_runs_user ON grade_runs(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_scan_runs_user ON scan_runs(user_id, created_at DESC);
@@ -106,6 +116,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_offer_runs_user ON offer_runs(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_competitor_runs_user ON competitor_runs(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_leadmagnet_runs_user ON leadmagnet_runs(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_instantly_pushes_user ON instantly_pushes(user_id, created_at DESC);
 `);
 
 export interface DbUser {
@@ -289,6 +300,29 @@ export function listLeadMagnetRuns(userId: string, limit = 10) {
     .all(userId, limit);
 }
 
+export function insertInstantlyPush(row: {
+  id: string;
+  userId: string;
+  campaignId: string;
+  leadCount: number;
+  okCount: number;
+  resultsJson: string;
+}): void {
+  db.prepare(
+    `INSERT INTO instantly_pushes (id, user_id, campaign_id, lead_count, ok_count, results_json, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).run(row.id, row.userId, row.campaignId, row.leadCount, row.okCount, row.resultsJson, new Date().toISOString());
+}
+
+export function listInstantlyPushes(userId: string, limit = 10) {
+  return db
+    .prepare(
+      `SELECT id, campaign_id, lead_count, ok_count, created_at FROM instantly_pushes
+       WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`
+    )
+    .all(userId, limit);
+}
+
 export interface OverviewStats {
   gradeRuns: number;
   scanRuns: number;
@@ -296,6 +330,7 @@ export interface OverviewStats {
   offerRuns: number;
   competitorRuns: number;
   leadMagnetRuns: number;
+  instantlyPushes: number;
   lastActivity: string | null;
 }
 
@@ -306,7 +341,7 @@ export function getOverviewStats(userId: string): OverviewStats {
       | undefined;
     return row?.c ?? 0;
   };
-  const tables = ["grade_runs", "scan_runs", "sequence_runs", "offer_runs", "competitor_runs", "leadmagnet_runs"];
+  const tables = ["grade_runs", "scan_runs", "sequence_runs", "offer_runs", "competitor_runs", "leadmagnet_runs", "instantly_pushes"];
   let lastActivity: string | null = null;
   for (const t of tables) {
     const row = db.prepare(`SELECT MAX(created_at) as m FROM ${t} WHERE user_id = ?`).get(userId) as
@@ -321,6 +356,7 @@ export function getOverviewStats(userId: string): OverviewStats {
     offerRuns: count("offer_runs"),
     competitorRuns: count("competitor_runs"),
     leadMagnetRuns: count("leadmagnet_runs"),
+    instantlyPushes: count("instantly_pushes"),
     lastActivity,
   };
 }

@@ -107,7 +107,7 @@ export default function ListGraderPage() {
             type="file"
             accept=".csv,text/csv"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised file:mr-3 file:font-mono file:text-xs file:uppercase file:border-0 file:bg-line file:rounded file:px-2 file:py-1"
+            className="field-input text-sm file:mr-3 file:font-mono file:text-xs file:uppercase file:border-0 file:bg-line file:rounded file:px-2 file:py-1"
           />
         </label>
 
@@ -118,7 +118,7 @@ export default function ListGraderPage() {
           <select
             value={icpGrade}
             onChange={(e) => setIcpGrade(e.target.value)}
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+            className="field-input text-sm"
           >
             <option value="">Not scored</option>
             <option value="A">A — most leads squarely in target ICP</option>
@@ -131,7 +131,7 @@ export default function ListGraderPage() {
         <button
           type="submit"
           disabled={loading}
-          className="font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
+          className="btn-focus font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
         >
           {loading ? "Grading…" : "Grade list"}
         </button>
@@ -141,7 +141,7 @@ export default function ListGraderPage() {
 
       {report && (
         <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-6 rounded border border-line bg-bg-raised p-6">
+          <div className="flex items-center gap-6 surface p-6">
             <div className={`font-serif text-6xl font-medium tabular ${GRADE_COLOR[report.overallGrade]}`}>
               {report.overallGrade}
             </div>
@@ -155,7 +155,7 @@ export default function ListGraderPage() {
             </div>
           </div>
 
-          <div className="rounded border border-line overflow-hidden">
+          <div className="rounded-xl border border-line overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-bg-raised border-b border-line-strong">
@@ -191,7 +191,7 @@ export default function ListGraderPage() {
           </div>
 
           {report.criticalIssues.length > 0 && (
-            <div className="rounded border border-crit/40 bg-crit/10 p-4">
+            <div className="rounded-xl border border-crit/30 bg-crit/10 p-4">
               <span className="eyebrow text-crit block mb-2">Critical — must fix before sending</span>
               <ul className="text-sm space-y-1 list-disc list-inside text-fg-dim">
                 {report.criticalIssues.map((c, i) => (
@@ -202,7 +202,7 @@ export default function ListGraderPage() {
           )}
 
           {report.recommendedFixes.length > 0 && (
-            <div className="rounded border border-line bg-bg-raised p-4">
+            <div className="surface p-4">
               <span className="eyebrow block mb-2">Recommended fixes</span>
               <ul className="text-sm space-y-1 list-disc list-inside text-fg-dim">
                 {report.recommendedFixes.map((c, i) => (

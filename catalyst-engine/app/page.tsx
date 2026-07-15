@@ -48,13 +48,13 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="font-mono text-xs uppercase tracking-wider px-3.5 py-2 rounded hover:text-accent transition-colors"
+              className="font-mono text-xs uppercase tracking-wider px-3.5 py-2 rounded-xl btn-focus hover:text-accent transition-colors"
             >
               Log in
             </Link>
             <Link
               href="/signup"
-              className="font-mono text-xs uppercase tracking-wider px-3.5 py-2 rounded border border-line-strong hover:border-accent hover:text-accent transition-colors"
+              className="font-mono text-xs uppercase tracking-wider px-3.5 py-2 rounded-xl btn-focus border border-line-strong hover:border-accent hover:text-accent transition-colors"
             >
               Sign up →
             </Link>
@@ -80,7 +80,7 @@ export default function Home() {
             <Link
               key={m.href}
               href={m.href}
-              className="group flex flex-col gap-3 rounded border border-line bg-bg-raised p-5 hover:border-accent-soft transition-colors"
+              className="group flex flex-col gap-3 surface surface-interactive p-5"
             >
               <div className="flex items-center justify-between">
                 <h2 className="font-serif text-lg font-medium">{m.title}</h2>

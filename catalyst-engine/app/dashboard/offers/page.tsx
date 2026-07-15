@@ -99,7 +99,7 @@ export default function OffersPage() {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="sk-ant-… (leave blank to use server default, if configured)"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised font-mono"
+            className="field-input text-sm font-mono"
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -109,7 +109,7 @@ export default function OffersPage() {
             onChange={(e) => setIcp(e.target.value)}
             placeholder="e.g. B2B logistics companies, 20-200 employees, ops leadership"
             rows={2}
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised resize-y"
+            className="field-input text-sm resize-y"
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -118,7 +118,7 @@ export default function OffersPage() {
             value={painPoint}
             onChange={(e) => setPainPoint(e.target.value)}
             placeholder="e.g. manual carrier reconciliation eating finance team hours"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+            className="field-input text-sm"
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -127,13 +127,13 @@ export default function OffersPage() {
             value={context}
             onChange={(e) => setContext(e.target.value)}
             placeholder="e.g. this is a follow-up sequence for warm inbound, not a cold first touch"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+            className="field-input text-sm"
           />
         </label>
         <button
           type="submit"
           disabled={loading}
-          className="font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
+          className="btn-focus font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
         >
           {loading ? "Generating…" : "Generate offers"}
         </button>
@@ -142,14 +142,14 @@ export default function OffersPage() {
 
       {result && (
         <div className="flex flex-col gap-4 max-w-2xl">
-          <div className="rounded border border-accent/40 bg-accent/10 p-4">
+          <div className="rounded-xl border border-accent/30 bg-accent/10 p-4">
             <span className="eyebrow block mb-1">Recommended primary</span>
             <p className="font-serif text-lg">{result.recommendedPrimary}</p>
             <p className="text-sm text-fg-dim mt-1">{result.reasoning}</p>
           </div>
 
           {result.offers.map((offer, i) => (
-            <div key={i} className="rounded border border-line bg-bg-raised p-4">
+            <div key={i} className="surface p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-serif text-base">{offer.category}</span>
                 <span className={`font-mono text-[0.65rem] uppercase tracking-wider ${FRICTION_COLOR[offer.friction] || "text-fg-dim"}`}>

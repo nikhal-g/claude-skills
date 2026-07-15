@@ -42,6 +42,26 @@ for the test cases used. The four reasoning tools are correct by code review and
 build but need a live Anthropic key to exercise end to end, same caveat as always for
 anything that calls out to Claude.
 
+### Sending: Instantly integration
+
+The Sequence Generator page has a "Push to Instantly" panel (`lib/instantly.ts`,
+`app/api/instantly/route.ts`) that adds each generated lead to an existing Instantly
+campaign as a lead with custom variables (`opener_subject`, `opener_body`,
+`touch2_subject`, etc.) — your Instantly campaign's own email steps need to reference
+those variables to actually send the generated copy. It requires the caller's own
+Instantly API key and campaign ID, pushes nothing automatically, and only runs when a
+signed-in user explicitly submits the form.
+
+**This is written against Instantly's documented v2 API shape from general knowledge,
+not verified against a live account** — this sandbox's network policy blocks outbound
+calls to arbitrary external hosts (confirmed: a real push attempt returns "Host not in
+allowlist: api.instantly.ai" from the sandbox's own proxy), so it could not be exercised
+end to end against `api.instantly.ai`. What *is* verified end to end: auth gating,
+input validation (missing campaign ID, missing key, no pushable leads, leads with no
+email), and that a failed push surfaces Instantly's raw error per lead instead of
+failing silently or crashing — see git history for the test transcript. Confirm the
+endpoint and field names against your own Instantly API key before relying on this.
+
 **Auth and persistence are real**, not stubbed:
 - Email/password accounts — `lib/auth.ts`, sessions in an httpOnly cookie, passwords
   hashed with `scrypt` (Node's built-in `node:crypto`, no extra dependency)
@@ -84,8 +104,8 @@ accounts and real persistence":
 - **A production database** — see the datastore note above. Local SQLite works for
   development; production on serverless hosting needs a hosted DB swapped in.
 - **Billing** — no Stripe, no usage metering, no plan tiers.
-- **Sending integration** — output still has to be manually exported and uploaded to
-  Instantly (or wherever). No API integration exists yet.
+- **Instantly integration is unverified against a live account** — see the "Sending"
+  section above. Confirm the API shape before depending on it.
 - **Reply ingestion / classification** — `reply-classifier` and `cold-email-ops-rhythm`
   from the skills library aren't built here at all. They need an inbox/webhook source of
   real replies, which this scaffold has no connection to.
@@ -103,3 +123,11 @@ The dashboard is a sidebar layout (not a top nav) grouped by mechanism — Deter
 tools vs. Reasoning tools — since six tools stopped fitting comfortably in a header bar.
 The overview page (`app/dashboard/page.tsx`) pulls real per-tool run counts and last
 activity from `getOverviewStats()` in `lib/db.ts`, not static placeholder cards.
+
+Surfaces (cards, result panels, the dimension table) use a shadow-based `.surface`
+utility instead of hard 1px borders on every box — softer elevation, larger radius
+(`rounded-xl`/`rounded-lg` throughout instead of the default 4px), and a visible
+focus-visible ring on every interactive element (`.field-input`, `.btn-focus`) instead
+of relying on the browser default. Verified visually with Playwright screenshots against
+the running app (landing, dashboard, list grader in both empty and populated result
+states) — not just "the build passed."

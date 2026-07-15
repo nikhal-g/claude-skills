@@ -92,12 +92,12 @@ export default function DeliverabilityPage() {
           onChange={(e) => setText(e.target.value)}
           placeholder={PLACEHOLDER}
           rows={10}
-          className="text-sm font-mono border border-line rounded px-3 py-2.5 bg-bg-raised resize-y"
+          className="field-input text-sm font-mono resize-y"
         />
         <button
           type="submit"
           disabled={loading}
-          className="font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
+          className="btn-focus font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
         >
           {loading ? "Scanning…" : "Scan draft"}
         </button>
@@ -122,7 +122,7 @@ export default function DeliverabilityPage() {
           {result.flags.length > 0 && (
             <div className="flex flex-col gap-2">
               {result.flags.map((f, i) => (
-                <div key={i} className="rounded border border-line bg-bg-raised px-4 py-3">
+                <div key={i} className="surface px-4 py-3">
                   <div className="flex items-center gap-2 mb-1">
                     <span
                       className={`font-mono text-[0.65rem] uppercase tracking-wider px-2 py-0.5 rounded-full ${

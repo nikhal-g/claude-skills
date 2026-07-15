@@ -115,7 +115,7 @@ export default function LeadMagnetPage() {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="sk-ant-… (leave blank to use server default, if configured)"
-            className="text-sm border border-line rounded px-3 py-2 bg-bg-raised font-mono"
+            className="field-input text-sm font-mono"
           />
         </label>
 
@@ -130,14 +130,14 @@ export default function LeadMagnetPage() {
                 onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                 placeholder={f.placeholder}
                 rows={2}
-                className="text-sm border border-line rounded px-3 py-2 bg-bg-raised resize-y"
+                className="field-input text-sm resize-y"
               />
             ) : (
               <input
                 value={form[f.key] || ""}
                 onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                 placeholder={f.placeholder}
-                className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+                className="field-input text-sm"
               />
             )}
           </label>
@@ -146,7 +146,7 @@ export default function LeadMagnetPage() {
         <button
           type="submit"
           disabled={loading}
-          className="font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
+          className="btn-focus font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
         >
           {loading ? "Building…" : "Build lead magnet"}
         </button>
@@ -160,19 +160,19 @@ export default function LeadMagnetPage() {
             <div className="flex gap-2">
               <button
                 onClick={copyMarkdown}
-                className="font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border border-line-strong hover:border-accent hover:text-accent transition-colors"
+                className="btn-focus font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded-xl border border-line-strong hover:border-accent hover:text-accent transition-colors"
               >
                 {copied ? "Copied" : "Copy markdown"}
               </button>
               <button
                 onClick={exportMarkdown}
-                className="font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border border-line-strong hover:border-accent hover:text-accent transition-colors"
+                className="btn-focus font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded-xl border border-line-strong hover:border-accent hover:text-accent transition-colors"
               >
                 Export .md
               </button>
             </div>
           </div>
-          <pre className="text-xs font-mono whitespace-pre-wrap rounded border border-line bg-bg-raised p-4 max-h-[600px] overflow-y-auto leading-relaxed">
+          <pre className="text-xs font-mono whitespace-pre-wrap surface p-4 max-h-[600px] overflow-y-auto leading-relaxed">
             {result.markdown}
           </pre>
         </div>

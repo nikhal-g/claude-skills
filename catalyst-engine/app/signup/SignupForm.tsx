@@ -41,7 +41,7 @@ export default function SignupForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+          className="field-input text-sm"
         />
       </label>
       <label className="flex flex-col gap-1.5">
@@ -52,13 +52,13 @@ export default function SignupForm() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="text-sm border border-line rounded px-3 py-2 bg-bg-raised"
+          className="field-input text-sm"
         />
       </label>
       <button
         type="submit"
         disabled={loading}
-        className="font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
+        className="btn-focus font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl bg-accent text-on-accent hover:bg-accent-soft transition-colors disabled:opacity-50 w-fit"
       >
         {loading ? "Creating account…" : "Create account"}
       </button>

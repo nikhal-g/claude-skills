@@ -40,7 +40,7 @@ export default function Sidebar({ email }: { email: string }) {
         <nav className="flex-1 px-3 py-4 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible">
           <Link
             href="/dashboard"
-            className={`px-3 py-1.5 rounded font-mono text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${
+            className={`px-3 py-1.5 rounded-lg btn-focus font-mono text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${
               pathname === "/dashboard" ? "bg-accent text-on-accent" : "hover:bg-bg-raised hover:text-accent"
             }`}
           >
@@ -56,7 +56,7 @@ export default function Sidebar({ email }: { email: string }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg btn-focus text-sm whitespace-nowrap transition-colors ${
                       active ? "bg-accent text-on-accent" : "hover:bg-bg-raised hover:text-accent text-fg-dim"
                     }`}
                   >
