@@ -71,10 +71,41 @@ db.exec(`
     created_at TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS offer_runs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    icp TEXT NOT NULL,
+    recommended_primary TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS competitor_runs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    competitor_name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS leadmagnet_runs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    topic TEXT NOT NULL,
+    title TEXT NOT NULL,
+    step_count INTEGER NOT NULL,
+    markdown TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
   CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
   CREATE INDEX IF NOT EXISTS idx_grade_runs_user ON grade_runs(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_scan_runs_user ON scan_runs(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_sequence_runs_user ON sequence_runs(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_offer_runs_user ON offer_runs(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_competitor_runs_user ON competitor_runs(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_leadmagnet_runs_user ON leadmagnet_runs(user_id, created_at DESC);
 `);
 
 export interface DbUser {
@@ -189,4 +220,107 @@ export function listSequenceRuns(userId: string, limit = 10) {
        WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`
     )
     .all(userId, limit);
+}
+
+export function insertOfferRun(row: {
+  id: string;
+  userId: string;
+  icp: string;
+  recommendedPrimary: string;
+  resultJson: string;
+}): void {
+  db.prepare(
+    `INSERT INTO offer_runs (id, user_id, icp, recommended_primary, result_json, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(row.id, row.userId, row.icp, row.recommendedPrimary, row.resultJson, new Date().toISOString());
+}
+
+export function listOfferRuns(userId: string, limit = 10) {
+  return db
+    .prepare(
+      `SELECT id, icp, recommended_primary, created_at FROM offer_runs
+       WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`
+    )
+    .all(userId, limit);
+}
+
+export function insertCompetitorRun(row: {
+  id: string;
+  userId: string;
+  competitorName: string;
+  url: string;
+  resultJson: string;
+}): void {
+  db.prepare(
+    `INSERT INTO competitor_runs (id, user_id, competitor_name, url, result_json, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(row.id, row.userId, row.competitorName, row.url, row.resultJson, new Date().toISOString());
+}
+
+export function listCompetitorRuns(userId: string, limit = 10) {
+  return db
+    .prepare(
+      `SELECT id, competitor_name, url, created_at FROM competitor_runs
+       WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`
+    )
+    .all(userId, limit);
+}
+
+export function insertLeadMagnetRun(row: {
+  id: string;
+  userId: string;
+  topic: string;
+  title: string;
+  stepCount: number;
+  markdown: string;
+}): void {
+  db.prepare(
+    `INSERT INTO leadmagnet_runs (id, user_id, topic, title, step_count, markdown, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).run(row.id, row.userId, row.topic, row.title, row.stepCount, row.markdown, new Date().toISOString());
+}
+
+export function listLeadMagnetRuns(userId: string, limit = 10) {
+  return db
+    .prepare(
+      `SELECT id, topic, title, step_count, created_at FROM leadmagnet_runs
+       WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`
+    )
+    .all(userId, limit);
+}
+
+export interface OverviewStats {
+  gradeRuns: number;
+  scanRuns: number;
+  sequenceRuns: number;
+  offerRuns: number;
+  competitorRuns: number;
+  leadMagnetRuns: number;
+  lastActivity: string | null;
+}
+
+export function getOverviewStats(userId: string): OverviewStats {
+  const count = (table: string): number => {
+    const row = db.prepare(`SELECT COUNT(*) as c FROM ${table} WHERE user_id = ?`).get(userId) as
+      | { c: number }
+      | undefined;
+    return row?.c ?? 0;
+  };
+  const tables = ["grade_runs", "scan_runs", "sequence_runs", "offer_runs", "competitor_runs", "leadmagnet_runs"];
+  let lastActivity: string | null = null;
+  for (const t of tables) {
+    const row = db.prepare(`SELECT MAX(created_at) as m FROM ${t} WHERE user_id = ?`).get(userId) as
+      | { m: string | null }
+      | undefined;
+    if (row?.m && (!lastActivity || row.m > lastActivity)) lastActivity = row.m;
+  }
+  return {
+    gradeRuns: count("grade_runs"),
+    scanRuns: count("scan_runs"),
+    sequenceRuns: count("sequence_runs"),
+    offerRuns: count("offer_runs"),
+    competitorRuns: count("competitor_runs"),
+    leadMagnetRuns: count("leadmagnet_runs"),
+    lastActivity,
+  };
 }

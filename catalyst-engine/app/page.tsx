@@ -19,6 +19,24 @@ const modules = [
     title: "Sequence Generator",
     body: "Upload leads. Each one gets its own opener and 3-touch follow-up sequence, written from the pattern-interrupt formula, not a mail-merge template.",
   },
+  {
+    href: "/dashboard/offers",
+    tag: "reasoning",
+    title: "Offer Generator",
+    body: "Describe your ICP. Get one offer angle per friction level — Insight, Framework, Gap Audit, Template, Call — with a recommended first move.",
+  },
+  {
+    href: "/dashboard/competitor",
+    tag: "reasoning",
+    title: "Competitor Profiler",
+    body: "Point it at a competitor's site. It fetches the pages and builds a positioning profile from what's actually there, not a guess.",
+  },
+  {
+    href: "/dashboard/leadmagnet",
+    tag: "reasoning",
+    title: "Lead Magnet Builder",
+    body: "Describe a topic and your real proof point. Get a full 4-6 step lead magnet page as markdown, ready to publish.",
+  },
 ];
 
 export default function Home() {
@@ -50,13 +68,14 @@ export default function Home() {
           The same outbound engine — run yourself, not booked as a service.
         </h1>
         <p className="text-fg-dim text-lg max-w-xl mt-5 text-balance">
-          List grading, deliverability checks, and per-lead personalization, wired up as three
-          tools your team logs into directly. No agency retainer between you and the result.
+          List grading, deliverability checks, personalization, offer strategy, competitor
+          research, and lead magnets — six tools your team logs into directly. No agency
+          retainer between you and the result.
         </p>
       </section>
 
       <section className="max-w-5xl mx-auto px-6 pb-20">
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((m) => (
             <Link
               key={m.href}
