@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #10151c;
+  --paper: #f3efe6;
+  --paper-raised: #fbf9f3;
+  --accent: #b5652f;
+  --accent-soft: #d99a5b;
+  --ok: #3f7a54;
+  --crit: #9c3c30;
+  --line: rgba(16, 21, 28, 0.14);
+  --line-strong: rgba(16, 21, 28, 0.28);
+
+  --fg: var(--ink);
+  --fg-dim: #52504a;
+  --bg: var(--paper);
+  --bg-raised: var(--paper-raised);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fg: #ece7db;
+    --fg-dim: #a9a397;
+    --bg: var(--ink);
+    --bg-raised: #171d26;
+    --line: rgba(236, 231, 219, 0.14);
+    --line-strong: rgba(236, 231, 219, 0.28);
+    --accent: #d9884f;
+    --accent-soft: #e8ab7c;
+    --ok: #6bab80;
+    --crit: #d17265;
+  }
+}
+
+:root[data-theme="dark"] {
+  --fg: #ece7db;
+  --fg-dim: #a9a397;
+  --bg: var(--ink);
+  --bg-raised: #171d26;
+  --line: rgba(236, 231, 219, 0.14);
+  --line-strong: rgba(236, 231, 219, 0.28);
+  --accent: #d9884f;
+  --accent-soft: #e8ab7c;
+  --ok: #6bab80;
+  --crit: #d17265;
+}
+
+:root[data-theme="light"] {
+  --fg: var(--ink);
+  --fg-dim: #52504a;
+  --bg: var(--paper);
+  --bg-raised: var(--paper-raised);
+  --accent: #b5652f;
+  --accent-soft: #d99a5b;
+  --ok: #3f7a54;
+  --crit: #9c3c30;
+  --line: rgba(16, 21, 28, 0.14);
+  --line-strong: rgba(16, 21, 28, 0.28);
+}
+
+@theme inline {
+  --color-on-accent: #fbf6ee;
+  --color-fg: var(--fg);
+  --color-fg-dim: var(--fg-dim);
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-crit: var(--crit);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --font-sans: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
