@@ -3,6 +3,7 @@ import { parseCsv } from "@/lib/csv";
 import { generateSequencesBatch, type LeadInput } from "@/lib/sequence";
 import { getCurrentUser } from "@/lib/auth";
 import { insertSequenceRun, listSequenceRuns } from "@/lib/db";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
@@ -37,6 +38,9 @@ function leadsFromCsv(csvText: string): LeadInput[] {
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Log in to use the sequence generator." }, { status: 401 });
+
+  const limit = checkRateLimit(`sequences:${user.id}`, 20, 60 * 60_000);
+  if (!limit.allowed) return rateLimitResponse(limit);
 
   const contentType = request.headers.get("content-type") || "";
   let leads: LeadInput[] = [];

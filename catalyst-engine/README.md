@@ -79,6 +79,34 @@ goes through the functions in `lib/db.ts`, not raw SQL, specifically so swapping
 hosted Postgres (Neon, Supabase) or libSQL/Turso for production is contained to that one
 file rather than a rewrite.
 
+Schema creation retries on `SQLITE_BUSY` (`execWithRetry` in `lib/db.ts`) because Next's
+build runs several workers in parallel, each importing this module independently, and
+they'd otherwise race to create the file on the very first build — this was a real,
+reproducible build failure (not a hypothetical), fixed and confirmed stable across
+repeated from-scratch builds, not just "worked once."
+
+### Security hardening
+
+Two real gaps got fixed, not just documented:
+
+- **SSRF in the Competitor Profiler.** It fetches a URL the caller supplies, server-side
+  — without a check, "competitor URL" could instead be a cloud metadata endpoint
+  (`169.254.169.254`), an internal service, or anything else this server can reach.
+  `assertPublicUrl()` in `lib/competitor.ts` resolves the hostname and rejects
+  private/loopback/link-local/reserved IP ranges before fetching, and refuses to follow
+  redirects (which could otherwise route around the check). Verified against five real
+  attack URLs including the AWS/GCP metadata IP — all rejected — while a legitimate
+  public URL still passes validation. Documented limitation: this doesn't close a
+  DNS-rebinding race (checked IP vs. connected IP could theoretically differ), which
+  would need a custom fetch dispatcher pinned to the resolved address to fully close.
+- **No rate limiting anywhere.** Every route that spends Anthropic API tokens
+  (Sequence Generator, Offer Generator, Competitor Profiler, Lead Magnet Builder,
+  Instantly push) now has a per-user hourly cap, and login/signup have a per-IP cap
+  (`lib/rateLimit.ts`) to blunt brute-force and spam-signup attempts. Verified directly:
+  11 rapid login attempts return 401 on the first 10 and 429 on the 11th. In-memory,
+  single-process — documented as not surviving a restart or scaling across instances,
+  same honest tradeoff as the SQLite datastore.
+
 ## Running it
 
 ```bash
@@ -111,8 +139,9 @@ accounts and real persistence":
   real replies, which this scaffold has no connection to.
 - **Notion publishing** for the Lead Magnet Builder — output is markdown, not a live page.
 - **Review-site research** for the Competitor Profiler — only fetches pages you give it.
-- **Rate limiting / abuse controls** on every route that calls Claude, since each spends
-  real API tokens per request.
+- **Rate limits are in-memory, single-process** — real caps exist now (see "Security
+  hardening" above), but they reset on restart and won't hold across multiple server
+  instances; production behind a load balancer needs a shared store (Redis or similar).
 
 ## Design system
 

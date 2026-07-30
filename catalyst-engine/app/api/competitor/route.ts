@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { profileCompetitor, type CompetitorInput } from "@/lib/competitor";
 import { getCurrentUser } from "@/lib/auth";
 import { insertCompetitorRun, listCompetitorRuns } from "@/lib/db";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
@@ -17,6 +18,9 @@ function isValidUrl(value: string): boolean {
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Log in to use the competitor profiler." }, { status: 401 });
+
+  const limit = checkRateLimit(`competitor:${user.id}`, 15, 60 * 60_000);
+  if (!limit.allowed) return rateLimitResponse(limit);
 
   const body = await request.json().catch(() => null);
   if (!body || typeof body.competitorName !== "string" || !body.competitorName.trim()) {

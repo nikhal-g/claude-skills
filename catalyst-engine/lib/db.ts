@@ -21,13 +21,37 @@ const globalForDb = globalThis as unknown as { catalystDb?: DatabaseSync };
 export const db = globalForDb.catalystDb ?? new DatabaseSync(DB_PATH);
 if (!globalForDb.catalystDb) globalForDb.catalystDb = db;
 
-// WAL + a busy timeout let Next's parallel build workers (each importing this
-// module independently) wait for the schema-creation lock instead of erroring
-// out with SQLITE_BUSY the instant two of them touch the file at once.
-db.exec("PRAGMA journal_mode = WAL");
-db.exec("PRAGMA busy_timeout = 5000");
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
 
-db.exec(`
+function isSqliteBusy(err: unknown): boolean {
+  const e = err as { errcode?: number; message?: string } | undefined;
+  return e?.errcode === 5 || /database is locked|SQLITE_BUSY/i.test(e?.message ?? "");
+}
+
+// Next's build runs several workers in parallel, each importing this module
+// independently, so the very first connections can race to create the file and set
+// WAL mode before busy_timeout is even in effect — a plain db.exec() here isn't
+// enough on its own (confirmed: it still threw "database is locked" intermittently
+// even with WAL configured). Retrying with backoff on SQLITE_BUSY specifically,
+// rather than papering over it with a longer timeout, actually closes the race.
+function execWithRetry(sql: string, attempts = 8): void {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      db.exec(sql);
+      return;
+    } catch (err) {
+      if (!isSqliteBusy(err) || i === attempts - 1) throw err;
+      sleepSync(30 * (i + 1));
+    }
+  }
+}
+
+execWithRetry("PRAGMA journal_mode = WAL");
+execWithRetry("PRAGMA busy_timeout = 5000");
+
+execWithRetry(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,

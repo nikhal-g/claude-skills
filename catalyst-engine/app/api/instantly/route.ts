@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { pushLeadsToInstantly, type InstantlyLead } from "@/lib/instantly";
 import { getCurrentUser } from "@/lib/auth";
 import { insertInstantlyPush, listInstantlyPushes } from "@/lib/db";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 interface SequenceForPush {
   lead: { name: string; company: string; email?: string };
@@ -19,6 +20,9 @@ interface SequenceForPush {
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Log in to push to Instantly." }, { status: 401 });
+
+  const limit = checkRateLimit(`instantly:${user.id}`, 10, 60 * 60_000);
+  if (!limit.allowed) return rateLimitResponse(limit);
 
   const body = await request.json().catch(() => null);
   if (!body || typeof body.campaignId !== "string" || !body.campaignId.trim()) {

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { generateLeadMagnet, type LeadMagnetInput } from "@/lib/leadmagnet";
 import { getCurrentUser } from "@/lib/auth";
 import { insertLeadMagnetRun, listLeadMagnetRuns } from "@/lib/db";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 const REQUIRED_FIELDS = ["topic", "audience", "promise", "painAddressed", "proofPoint", "contactName", "bookingLink"] as const;
@@ -9,6 +10,9 @@ const REQUIRED_FIELDS = ["topic", "audience", "promise", "painAddressed", "proof
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Log in to use the lead magnet builder." }, { status: 401 });
+
+  const limit = checkRateLimit(`leadmagnet:${user.id}`, 20, 60 * 60_000);
+  if (!limit.allowed) return rateLimitResponse(limit);
 
   const body = await request.json().catch(() => null);
   if (!body) return Response.json({ error: "Invalid JSON body." }, { status: 400 });
