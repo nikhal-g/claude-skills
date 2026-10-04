@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose -f google-maps-scraper-kit/docker-compose.yml up:*)",
+      "Bash(docker compose -f google-maps-scraper-kit/docker-compose.yml down:*)",
+      "Bash(docker compose -f google-maps-scraper-kit/docker-compose.yml stop:*)",
+      "Bash(docker compose -f google-maps-scraper-kit/docker-compose.yml start:*)",
+      "Bash(docker compose -f google-maps-scraper-kit/docker-compose.yml ps:*)",
+      "Bash(docker ps:*)",
+      "Bash(curl http://localhost:8080:*)",
+      "Bash(curl -s http://localhost:8080:*)",
+      "Bash(curl http://127.0.0.1:8080:*)",
+      "Bash(./google-maps-scraper-kit/scripts/scrape.sh:*)",
+      "Bash(bash google-maps-scraper-kit/scripts/scrape.sh:*)",
+      "Bash(python3 google-maps-scraper-kit/scripts/scrape.py:*)",
+      "Bash(python google-maps-scraper-kit/scripts/scrape.py:*)"
+    ],
+    "deny": []
+  }
+}

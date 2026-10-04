@@ -1,0 +1,5 @@
+# Google Maps scraper outputs (may contain personal data — never commit)
+*.csv
+results-*.json
+.env
+__pycache__/
